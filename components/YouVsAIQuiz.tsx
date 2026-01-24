@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useStudent } from '../context/StudentContext';
 import { QUIZZES } from '../data/curriculum';
-import { Trophy, Timer, X, Zap, User, Bot, Swords, CheckCircle2, XCircle, Brain, Crown, ArrowLeft } from 'lucide-react';
+import { QuizQuestion } from '../types';
+import { Trophy, Timer, User, Bot, Swords, CheckCircle2, XCircle, ArrowLeft, Loader2 } from 'lucide-react';
 
 interface YouVsAIQuizProps {
   onBack: () => void;
 }
 
-// Flatten questions for the battle pool
-const BATTLE_QUESTIONS = Object.values(QUIZZES).flatMap(q => q.questions).sort(() => Math.random() - 0.5).slice(0, 5);
-
 export const YouVsAIQuiz: React.FC<YouVsAIQuizProps> = ({ onBack }) => {
-  const { digitalTwin, addXP } = useStudent();
-  const [gameState, setGameState] = useState<'LOBBY' | 'BATTLE' | 'RESULT'>('LOBBY');
+  const { addXP } = useStudent();
+  const [gameState, setGameState] = useState<'LOADING' | 'LOBBY' | 'BATTLE' | 'RESULT'>('LOADING');
+  const [battleQuestions, setBattleQuestions] = useState<QuizQuestion[]>([]);
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [userScore, setUserScore] = useState(0);
   const [aiScore, setAiScore] = useState(0);
@@ -27,6 +26,27 @@ export const YouVsAIQuiz: React.FC<YouVsAIQuizProps> = ({ onBack }) => {
 
   // Timer Ref
   const timerRef = useRef<any>(null);
+  // AI Real Choice Ref
+  const aiRealChoiceRef = useRef<number>(-1);
+
+  // --- INITIALIZATION ---
+  useEffect(() => {
+    // Move question generation here to prevent top-level crashes
+    try {
+        const allQuestions = Object.values(QUIZZES).flatMap(q => q.questions || []);
+        if (allQuestions.length > 0) {
+            const selected = allQuestions.sort(() => Math.random() - 0.5).slice(0, 5);
+            setBattleQuestions(selected);
+            setGameState('LOBBY');
+        } else {
+            console.error("No questions available for battle.");
+            onBack(); // Exit if no data
+        }
+    } catch (e) {
+        console.error("Failed to initialize battle:", e);
+        onBack();
+    }
+  }, []);
 
   // --- LOBBY LOGIC ---
   useEffect(() => {
@@ -60,35 +80,17 @@ export const YouVsAIQuiz: React.FC<YouVsAIQuizProps> = ({ onBack }) => {
 
     // AI Logic: Decide when and what to answer
     const aiThinkTime = Math.random() * 4000 + 2000; // 2s to 6s delay
-    setTimeout(() => {
-        // AI randomly answers correctly (80% chance) or wrong
-        const q = BATTLE_QUESTIONS[currentQIndex];
-        const isCorrect = Math.random() > 0.2; 
-        const aiChoice = isCorrect ? q.correctIndex : (q.correctIndex + 1) % 4;
-        
-        // Only set if round is still active
-        setAiAnswer(prev => prev === null ? -1 : prev); // -1 means "Answered but hidden"
-        
-        // Store actual choice in a temp variable or state to reveal later? 
-        // For simplicity, we just set a "ready" state (-1) and store the real choice in a ref or derived state logic
-        // But since we need to show it at Reveal, let's actually set it to a specialized state or just keep it simple:
-        // We'll use a separate effect or just logic at reveal time.
-        // Actually, let's stick to: AI answers "hidden" (-1) then we reveal at end.
-        // We need to know the AI's real choice to score. 
-        // Let's store real choice in a dataset attribute or similar? No, state is better.
-        // Let's use a hidden state for AI's real choice.
-    }, aiThinkTime);
+    // We handle the actual AI choice setting in the separate effect below
   };
-
-  // We need a ref to store AI's real choice so we don't reveal it instantly
-  const aiRealChoiceRef = useRef<number>(-1);
 
   // Reset AI choice per round
   useEffect(() => {
-      if (gameState === 'BATTLE' && roundResult === 'WAITING' && timeLeft === 10) {
+      if (gameState === 'BATTLE' && roundResult === 'WAITING' && timeLeft === 10 && battleQuestions.length > 0) {
           // New round started
           aiRealChoiceRef.current = -1;
-          const q = BATTLE_QUESTIONS[currentQIndex];
+          const q = battleQuestions[currentQIndex];
+          if (!q) return;
+
           const isCorrect = Math.random() > 0.2; // 80% accuracy
           const realChoice = isCorrect ? q.correctIndex : Math.floor(Math.random() * 4);
           
@@ -102,7 +104,7 @@ export const YouVsAIQuiz: React.FC<YouVsAIQuizProps> = ({ onBack }) => {
           }, delay);
           return () => clearTimeout(timeout);
       }
-  }, [currentQIndex, gameState, roundResult]); // Removed timeLeft dependency to avoid re-scheduling
+  }, [currentQIndex, gameState, roundResult, battleQuestions]); 
 
   const handleUserClick = (idx: number) => {
     if (userAnswer !== null || roundResult === 'REVEAL') return;
@@ -114,22 +116,24 @@ export const YouVsAIQuiz: React.FC<YouVsAIQuizProps> = ({ onBack }) => {
     setRoundResult('REVEAL');
     
     // Reveal AI Answer
-    setAiAnswer(aiRealChoiceRef.current === -1 ? null : aiRealChoiceRef.current); // If -1 (didn't answer in time), set null. Else real choice.
+    setAiAnswer(aiRealChoiceRef.current === -1 ? null : aiRealChoiceRef.current);
 
     // Calculate Scores
-    const q = BATTLE_QUESTIONS[currentQIndex];
+    const q = battleQuestions[currentQIndex];
+    if (!q) return;
+
     let uPoints = 0;
     let aPoints = 0;
 
     if (userAnswer === q.correctIndex) uPoints += 100 + (timeLeft * 10); // Speed bonus
-    if (aiRealChoiceRef.current === q.correctIndex) aPoints += 100 + (Math.floor(Math.random()*5) * 10); // Random speed bonus for AI simulation
+    if (aiRealChoiceRef.current === q.correctIndex) aPoints += 100 + (Math.floor(Math.random()*5) * 10); 
 
     setUserScore(prev => prev + uPoints);
     setAiScore(prev => prev + aPoints);
 
     // Next Round Delay
     setTimeout(() => {
-        if (currentQIndex < BATTLE_QUESTIONS.length - 1) {
+        if (currentQIndex < battleQuestions.length - 1) {
             setCurrentQIndex(prev => prev + 1);
             startRound();
         } else {
@@ -142,11 +146,19 @@ export const YouVsAIQuiz: React.FC<YouVsAIQuizProps> = ({ onBack }) => {
   // Trigger round end if both answered
   useEffect(() => {
       if (userAnswer !== null && aiAnswer === -1 && roundResult === 'WAITING') {
-          // Both answered, short delay then reveal
           setTimeout(handleRoundEnd, 500);
       }
   }, [userAnswer, aiAnswer]);
 
+  // --- RENDERS ---
+
+  if (gameState === 'LOADING') {
+      return (
+          <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">
+              <Loader2 size={48} className="animate-spin text-blue-500" />
+          </div>
+      );
+  }
 
   if (gameState === 'LOBBY') {
       return (
@@ -208,7 +220,8 @@ export const YouVsAIQuiz: React.FC<YouVsAIQuizProps> = ({ onBack }) => {
       );
   }
 
-  const currentQ = BATTLE_QUESTIONS[currentQIndex];
+  const currentQ = battleQuestions[currentQIndex];
+  if (!currentQ) return <div className="text-white p-10">Error loading question.</div>;
 
   return (
     <div className="min-h-screen bg-slate-950 text-white font-sans flex flex-col">

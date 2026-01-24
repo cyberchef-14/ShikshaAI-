@@ -1,6 +1,20 @@
 import { GoogleGenAI } from "@google/genai";
 import { StudentDigitalTwin } from "../types";
 
+// Helper to safely get API Key
+const getApiKey = () => {
+    try {
+        if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+            return process.env.API_KEY;
+        }
+        // Fallback for vite environments that might use import.meta.env but usually process is shimmed.
+        // If not shimmed, we return undefined safely.
+        return undefined;
+    } catch (e) {
+        return undefined;
+    }
+}
+
 // We use this only for the "Explain My Mistake" feature
 export const analyzeMistake = async (
   questionText: string,
@@ -9,7 +23,7 @@ export const analyzeMistake = async (
   concept: string,
   language: string
 ): Promise<string> => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = getApiKey();
 
   // Fallback if no API key is present (Mock AI)
   if (!apiKey) {
@@ -57,7 +71,7 @@ export const getAIResponse = async (
     currentContext: string,
     language: string
 ): Promise<string> => {
-    const apiKey = process.env.API_KEY;
+    const apiKey = getApiKey();
 
     if (!apiKey) {
         return new Promise((resolve) => {
@@ -100,7 +114,7 @@ export const generateQuizForTopic = async (
   topicTitle: string,
   difficulty: 'Medium' | 'Hard'
 ): Promise<string> => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = getApiKey();
   
   if (!apiKey) {
       return new Promise((resolve) => {
@@ -147,7 +161,7 @@ export const generateQuizForTopic = async (
 
 // NEW: Advanced Student Analysis Report
 export const generateStudentAnalysis = async (student: StudentDigitalTwin): Promise<string> => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = getApiKey();
 
   if (!apiKey) {
       return new Promise((resolve) => {
@@ -188,7 +202,7 @@ export const generateStudentAnalysis = async (student: StudentDigitalTwin): Prom
 
 // NEW: Generate Personalized Weekly Study Plan
 export const generateWeeklyPlan = async (student: StudentDigitalTwin): Promise<string> => {
-    const apiKey = process.env.API_KEY;
+    const apiKey = getApiKey();
 
     if (!apiKey) {
         return new Promise((resolve) => {
@@ -256,7 +270,7 @@ export const generateWeeklyPlan = async (student: StudentDigitalTwin): Promise<s
 
 // === FEATURE: Explain Like I'm... (Complexity Slider) ===
 export const rewriteContent = async (text: string, level: string, language: string): Promise<string> => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = getApiKey();
   
   if (!apiKey) {
       return new Promise((resolve) => {
@@ -299,7 +313,7 @@ export const evaluateVivaAnswer = async (
   question: string, 
   transcript: string
 ): Promise<{ score: number, feedback: string, confidence: number }> => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = getApiKey();
 
   if (!apiKey) {
       return new Promise((resolve) => resolve({
@@ -344,7 +358,7 @@ export const getDebateResponse = async (
   topic: string,
   history: { role: 'ai' | 'user', text: string }[]
 ): Promise<{ reply: string, logicScoreChange: number, isWin: boolean }> => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = getApiKey();
 
   if (!apiKey) {
       return new Promise(resolve => resolve({
