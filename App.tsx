@@ -6,13 +6,14 @@ import { LearningSession } from './pages/LearningSession';
 import { QuizSession } from './pages/QuizSession';
 import { TeacherDashboard } from './pages/TeacherDashboard';
 import { OfficialDashboard } from './pages/OfficialDashboard';
-import { UserRole } from './types';
+import { UserRole, Quiz } from './types';
 import { QUIZZES } from './data/curriculum';
 
 const AppContent: React.FC = () => {
   const [view, setView] = useState<'landing' | 'dashboard' | 'session' | 'quiz'>('landing');
   const [userRole, setUserRole] = useState<UserRole>('student');
   const [activeConcept, setActiveConcept] = useState<string | null>(null);
+  const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
 
   const handleLogin = (role: UserRole) => {
     setUserRole(role);
@@ -21,7 +22,7 @@ const AppContent: React.FC = () => {
   
   const handleLogout = () => {
     setView('landing');
-    setUserRole('student'); // Reset to default safely
+    setUserRole('student'); 
   };
   
   const handleStartSession = (conceptId: string) => {
@@ -29,13 +30,14 @@ const AppContent: React.FC = () => {
     setView('session');
   };
 
-  const handleStartQuiz = (chapterId: string) => {
-    setActiveConcept(chapterId); // Use activeConcept to track which chapter's quiz
+  const handleStartQuiz = (quiz: Quiz) => {
+    setActiveQuiz(quiz); 
     setView('quiz');
   };
 
   const handleExitSession = () => {
     setActiveConcept(null);
+    setActiveQuiz(null);
     setView('dashboard');
   };
 
@@ -54,14 +56,8 @@ const AppContent: React.FC = () => {
     return <LearningSession conceptId={activeConcept} onExit={handleExitSession} />;
   }
 
-  if (view === 'quiz' && activeConcept) {
-      const quiz = QUIZZES[activeConcept];
-      if (quiz) {
-          return <QuizSession quiz={quiz} onExit={handleExitSession} />;
-      } else {
-          // Fallback if no quiz exists for this ID
-          return <Dashboard onStartSession={handleStartSession} onStartQuiz={handleStartQuiz} onBack={handleLogout} />; 
-      }
+  if (view === 'quiz' && activeQuiz) {
+      return <QuizSession quiz={activeQuiz} onExit={handleExitSession} />;
   }
 
   return <div>Error: Unknown State</div>;

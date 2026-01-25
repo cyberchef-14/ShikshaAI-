@@ -11,7 +11,19 @@ const INITIAL_CLASS_DATA: StudentDigitalTwin[] = [
     name: "Amit Kumar (You)", 
     currentLanguage: Language.ENGLISH,
     masteryMap: { 'c10_chem_rxn_full': 0.0, 'c10_acids_bases': 0.0, 'c10_life_proc': 0.0, 'c10_light': 0.0 }, 
-    confusionPoints: [],
+    confusionPoints: ['c10_chem_rxn_full'],
+    mistakeLog: [
+        {
+            id: 'm_seed_1',
+            questionText: 'In the reaction: Fe2O3 + 2Al -> Al2O3 + 2Fe. What type of reaction is this?',
+            wrongAnswer: 'Decomposition',
+            correctAnswer: 'Displacement Reaction',
+            conceptId: 'c10_chem_rxn_full',
+            timestamp: Date.now(),
+            retryCount: 0,
+            resolved: false
+        }
+    ],
     queryNotebook: [],
     recentActivities: [
         { id: 'a1', type: 'login', message: 'Logged in to Learning Portal', timestamp: Date.now() - 100000 }
@@ -28,6 +40,7 @@ const INITIAL_CLASS_DATA: StudentDigitalTwin[] = [
     currentLanguage: Language.ENGLISH,
     masteryMap: { 'c10_chem_rxn_full': 0.5, 'c10_acids_bases': 0.6, 'c10_life_proc': 0.95, 'c10_light': 0.8 }, 
     confusionPoints: ["Balancing Equations"],
+    mistakeLog: [],
     queryNotebook: [],
     recentActivities: [
          { id: 'a2', type: 'quiz_complete', message: 'Completed Life Processes Quiz (95%)', timestamp: Date.now() - 3600000 },
@@ -45,6 +58,7 @@ const INITIAL_CLASS_DATA: StudentDigitalTwin[] = [
     currentLanguage: Language.HINDI,
     masteryMap: { 'c10_chem_rxn_full': 0.3, 'c10_acids_bases': 0.2, 'c10_life_proc': 0.5, 'c10_light': 0.4 }, 
     confusionPoints: ["Acids vs Bases", "Refraction", "Redox"],
+    mistakeLog: [],
     queryNotebook: [],
     recentActivities: [
         { id: 'a4', type: 'confusion_flagged', message: 'Failed diagnostic on Acids', timestamp: Date.now() - 1800000 }
@@ -61,6 +75,7 @@ const INITIAL_CLASS_DATA: StudentDigitalTwin[] = [
     currentLanguage: Language.ENGLISH,
     masteryMap: { 'c10_chem_rxn_full': 0.95, 'c10_acids_bases': 0.9, 'c10_life_proc': 0.9, 'c10_light': 0.95 }, 
     confusionPoints: [],
+    mistakeLog: [],
     queryNotebook: [],
     recentActivities: [
         { id: 'a5', type: 'concept_mastered', message: 'Mastered Light: Reflection', timestamp: Date.now() - 900000 }
@@ -77,6 +92,7 @@ const INITIAL_CLASS_DATA: StudentDigitalTwin[] = [
     currentLanguage: Language.HINDI,
     masteryMap: { 'c10_chem_rxn_full': 0.7, 'c10_acids_bases': 0.4, 'c10_life_proc': 0.6, 'c10_light': 0.3 }, 
     confusionPoints: ["pH Scale"],
+    mistakeLog: [],
     queryNotebook: [],
     recentActivities: [],
     learningStyle: 'visual',
