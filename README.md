@@ -1,20 +1,115 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+🎓 Shiksha AI
 
-# Run and deploy your AI Studio app
+AI-Powered Personalized Learning Platform
 
-This contains everything you need to run your app locally.
+Live Demo: https://shiksha-ai-nu.vercel.app/
 
-View your app in AI Studio: https://ai.studio/apps/drive/1wzmszGRUCRnU9UA9DSc9e0eCOPs1aZ3Y
+📌 Overview
 
-## Run Locally
+Shiksha AI is an AI-driven educational platform designed to provide personalized learning assistance to students. The system analyzes student inputs, identifies learning gaps, and generates intelligent feedback to improve conceptual understanding.
 
-**Prerequisites:**  Node.js
+The platform aims to make education adaptive, accessible, and data-driven.
+
+🚀 Features
+
+🤖 AI-based answer evaluation
+
+📊 Performance analytics dashboard
+
+📈 Personalized feedback generation
+
+📚 Subject-wise learning assistance
+
+🎯 Weak area identification
+
+🖥️ Clean and responsive UI
+
+🌐 Deployed on Vercel
+
+🏗️ System Architecture
+Frontend (Next.js / React)
+        │
+        ▼
+API Layer (Serverless / Backend)
+        │
+        ▼
+AI Engine (LLM / ML Model)
+        │
+        ▼
+Database (User + Performance Data)
+
+🛠️ Tech Stack
+
+Frontend
+
+Next.js / React
+
+Tailwind CSS / CSS Modules
+
+Chart.js (for analytics)
+
+Backend / API
+
+Node.js / Serverless Functions
+
+REST APIs
+
+AI Layer
+
+OpenAI API / Custom ML Model
+
+NLP-based evaluation
+
+Database
+
+MongoDB / PostgreSQL / Firebase (update based on your stack)
+
+Deployment
+
+Vercel
+
+📂 Project Structure
+shiksha-ai/
+│
+├── components/        # Reusable UI components
+├── pages/             # Application routes
+├── api/               # Backend API routes
+├── utils/             # Helper functions
+├── public/            # Static assets
+├── styles/            # Styling files
+└── README.md
+
+⚙️ Installation & Setup
+1️⃣ Clone the Repository
+git clone https://github.com/your-username/shiksha-ai.git
+cd shiksha-ai
+
+2️⃣ Install Dependencies
+npm install
+
+3️⃣ Configure Environment Variables
+
+Create a .env.local file:
+
+OPENAI_API_KEY=your_api_key
+DATABASE_URL=your_database_url
+
+4️⃣ Run Locally
+npm run dev
 
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Visit:
+
+http://localhost:3000
+
+📊 How It Works
+
+User submits question/answer.
+
+System sends input to AI model.
+
+AI evaluates content using NLP.
+
+Feedback and suggestions are generated.
+
+Results are stored for performance tracking.
